@@ -1,4 +1,4 @@
-package main
+package redis
 
 import (
 	"errors"
@@ -14,6 +14,8 @@ type KV struct {
 type RedisPool struct {
 	pool redis.Pool
 }
+
+var errNoKeysToDelete = errors.New("no keys to delete")
 
 func NewRedisPool(sock string) (*RedisPool, error) {
 	var errConn error
@@ -61,7 +63,14 @@ func (p *RedisPool) Get(key string) (string, error) {
 		return "", errGet
 	}
 
-	return value.(string), nil
+	if value == nil {
+		return "", nil
+	}
+
+	var buf []byte
+	buf = append(buf, value.([]uint8)...)
+
+	return string(buf), nil
 }
 
 func (p *RedisPool) Delete(keys ...string) error {
@@ -69,7 +78,7 @@ func (p *RedisPool) Delete(keys ...string) error {
 	defer conn.Close()
 
 	if len(keys) == 0 {
-		return errors.New("no keys to delete")
+		return errNoKeysToDelete
 	}
 
 	if len(keys) == 1 {
