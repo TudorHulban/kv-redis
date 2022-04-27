@@ -76,8 +76,6 @@ func (p *RedisPool) GetAny(key string, decodeInTo interface{}) error {
 	}
 
 	if value == nil {
-		decodeInTo = nil
-
 		return nil
 	}
 

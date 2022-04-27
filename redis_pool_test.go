@@ -89,9 +89,14 @@ func TestKVAny(t *testing.T) {
 	errSet := pool.SetAny(key, v)
 	require.NoError(t, errSet)
 
-	var res tstruct
+	var res1 tstruct
 
-	errGet := pool.GetAny(key, &res)
+	errGet := pool.GetAny(key, &res1)
 	require.NoError(t, errGet)
-	require.Equal(t, v, res)
+	require.Equal(t, v, res1)
+
+	var res2 tstruct
+
+	require.NoError(t, pool.GetAny("1", &res2))
+	require.Equal(t, tstruct{}, res2, "no key therefore no change in passed var")
 }
