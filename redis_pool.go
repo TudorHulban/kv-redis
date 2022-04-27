@@ -2,6 +2,7 @@ package redis
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/gomodule/redigo/redis"
 )
@@ -50,6 +51,40 @@ func (p *RedisPool) Set(kv KV) error {
 
 	_, errSet := conn.Do("SET", kv.key, kv.value)
 	return errSet
+}
+
+func (p *RedisPool) SetAny(key string, any interface{}) error {
+	buf, errEnc := Encoder(any)
+	if errEnc != nil {
+		return fmt.Errorf("set any: %w", errEnc)
+	}
+
+	conn := p.pool.Get()
+	defer conn.Close()
+
+	_, errSet := conn.Do("SET", key, string(buf))
+	return errSet
+}
+
+func (p *RedisPool) GetAny(key string, decodeInTo interface{}) error {
+	conn := p.pool.Get()
+	defer conn.Close()
+
+	value, errGet := conn.Do("GET", key)
+	if errGet != nil {
+		return errGet
+	}
+
+	if value == nil {
+		decodeInTo = nil
+
+		return nil
+	}
+
+	var buf []byte
+	buf = append(buf, value.([]uint8)...)
+
+	return Decoder(buf, decodeInTo)
 }
 
 // Get handles only string values as per:

@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestConstructor(t *testing.T) {
+func TestKVString(t *testing.T) {
 	sock := "127.0.0.1:6379"
 
 	pool, errNew := NewRedisPool(sock)
@@ -70,4 +70,28 @@ func TestConstructor(t *testing.T) {
 	value6, errGet6 := pool.Get(kv3.key)
 	require.NoError(t, errGet6)
 	require.Equal(t, "", value6, "kv3 should be deleted by now")
+}
+
+func TestKVAny(t *testing.T) {
+	sock := "127.0.0.1:6379"
+
+	pool, errNew := NewRedisPool(sock)
+	require.NoError(t, errNew)
+	require.NotNil(t, pool)
+
+	v := tstruct{
+		F1: 1,
+		F2: []byte("a"),
+	}
+
+	key := strconv.FormatInt(time.Now().UnixNano(), 10)
+
+	errSet := pool.SetAny(key, v)
+	require.NoError(t, errSet)
+
+	var res tstruct
+
+	errGet := pool.GetAny(key, &res)
+	require.NoError(t, errGet)
+	require.Equal(t, v, res)
 }

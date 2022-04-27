@@ -23,8 +23,9 @@ func TestGobers(t *testing.T) {
 	assert.NotNil(t, resEnc)
 
 	// testing decoder
-	p := new(tstruct)
-	errDecode := Decoder(resEnc, p)
+	var p tstruct
+
+	errDecode := Decoder(resEnc, &p)
 	assert.NoError(t, errDecode)
-	assert.Equal(t, v, *p)
+	assert.Equal(t, v, p)
 }
