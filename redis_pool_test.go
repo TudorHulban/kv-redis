@@ -8,12 +8,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestKVString(t *testing.T) {
-	sock := "127.0.0.1:6379"
+const _sock = "127.0.0.1:6379"
 
-	pool, errNew := NewRedisPool(sock)
+func TestKVString(t *testing.T) {
+	pool, errNew := NewRedisPool(_sock)
 	require.NoError(t, errNew)
 	require.NotNil(t, pool)
+
+	defer pool.Close()
 
 	now := strconv.FormatInt(time.Now().UnixNano(), 10)
 
@@ -32,11 +34,9 @@ func TestKVString(t *testing.T) {
 		value: "y3",
 	}
 
-	errSet := pool.Set(kv1)
-	require.NoError(t, errSet, "operation set")
-
-	pool.Set(kv2)
-	pool.Set(kv3)
+	require.NoError(t, pool.Set(kv1), "operation set kv1")
+	require.NoError(t, pool.Set(kv2), "operation set kv2")
+	require.NoError(t, pool.Set(kv3), "operation set kv3")
 
 	value1, errGet1 := pool.Get(kv1.key)
 	require.NoError(t, errGet1)
@@ -50,18 +50,15 @@ func TestKVString(t *testing.T) {
 	require.NoError(t, errGet3)
 	require.Equal(t, kv3.value, value3, "get kv3")
 
-	errDel1 := pool.Delete()
-	require.ErrorIs(t, errNoKeysToDelete, errDel1)
+	require.ErrorIs(t, errNoKeysToDelete, pool.Delete())
 
-	errDel2 := pool.Delete(kv1.key)
-	require.NoError(t, errDel2)
+	require.NoError(t, pool.Delete(kv1.key))
 
 	value4, errGet4 := pool.Get(kv1.key)
 	require.NoError(t, errGet4)
 	require.Equal(t, "", value4)
 
-	errDel3 := pool.Delete(kv2.key, kv3.key)
-	require.NoError(t, errDel3)
+	require.NoError(t, pool.Delete(kv2.key, kv3.key))
 
 	value5, errGet5 := pool.Get(kv2.key)
 	require.NoError(t, errGet5)
@@ -73,11 +70,11 @@ func TestKVString(t *testing.T) {
 }
 
 func TestKVAny(t *testing.T) {
-	sock := "127.0.0.1:6379"
-
-	pool, errNew := NewRedisPool(sock)
+	pool, errNew := NewRedisPool(_sock)
 	require.NoError(t, errNew)
 	require.NotNil(t, pool)
+
+	defer pool.Close()
 
 	v := tstruct{
 		F1: 1,
