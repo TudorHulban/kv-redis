@@ -11,6 +11,7 @@ func (p *RedisPool) Set(kv KV) error {
 	_, errSet := conn.Do("SET", kv.key, kv.value)
 	return errSet
 }
+
 func (p *RedisPool) SetAny(key string, any interface{}) error {
 	buf, errEnc := Encoder(any)
 	if errEnc != nil {
@@ -21,5 +22,20 @@ func (p *RedisPool) SetAny(key string, any interface{}) error {
 	defer conn.Close()
 
 	_, errSet := conn.Do("SET", key, string(buf))
+	return errSet
+}
+
+func (p *RedisPool) SetList(kv KVs) error {
+	conn := p.pool.Get()
+	defer conn.Close()
+
+	var serializedItems []interface{}
+	serializedItems = append(serializedItems, kv.key)
+
+	for _, item := range kv.values {
+		serializedItems = append(serializedItems, item)
+	}
+
+	_, errSet := conn.Do("RPUSH", serializedItems...)
 	return errSet
 }
