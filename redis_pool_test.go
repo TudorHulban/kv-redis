@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const _sock = "127.0.0.1:6379"
+const _sock = "192.168.1.95:6379"
 
 func TestKVString(t *testing.T) {
 	pool, errNew := NewPool(_sock)
