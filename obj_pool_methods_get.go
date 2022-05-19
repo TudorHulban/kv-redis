@@ -9,7 +9,7 @@ import (
 
 // Get handles only string values as per:
 // https://redis.io/commands/get/
-func (p *RedisPool) Get(keys ...string) ([]string, error) {
+func (p *Pool) Get(keys ...string) ([]string, error) {
 	if len(keys) == 0 {
 		return nil, errors.New("no keys passed")
 	}
@@ -53,7 +53,7 @@ func (p *RedisPool) Get(keys ...string) ([]string, error) {
 	return res, nil
 }
 
-func (p *RedisPool) GetAny(key string, decodeInTo interface{}) error {
+func (p *Pool) GetAny(key string, decodeInTo interface{}) error {
 	conn := p.pool.Get()
 	defer conn.Close()
 
@@ -73,7 +73,7 @@ func (p *RedisPool) GetAny(key string, decodeInTo interface{}) error {
 }
 
 // See more on SCAN in https://redis.io/commands/scan/
-func (p *RedisPool) GetByPattern(pattern string) ([]string, error) {
+func (p *Pool) GetByPattern(pattern string) ([]string, error) {
 	conn := p.pool.Get()
 	defer conn.Close()
 

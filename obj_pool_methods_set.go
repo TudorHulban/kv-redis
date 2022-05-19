@@ -4,7 +4,7 @@ import "fmt"
 
 // See more about SET in:
 // https://redis.io/commands/set/
-func (p *RedisPool) Set(kv KV) error {
+func (p *Pool) Set(kv KV) error {
 	conn := p.pool.Get()
 	defer conn.Close()
 
@@ -12,7 +12,7 @@ func (p *RedisPool) Set(kv KV) error {
 	return errSet
 }
 
-func (p *RedisPool) SetAny(key string, any interface{}) error {
+func (p *Pool) SetAny(key string, any interface{}) error {
 	buf, errEnc := Encoder(any)
 	if errEnc != nil {
 		return fmt.Errorf("set any: %w", errEnc)
@@ -25,7 +25,7 @@ func (p *RedisPool) SetAny(key string, any interface{}) error {
 	return errSet
 }
 
-func (p *RedisPool) SetList(kv KVs) error {
+func (p *Pool) SetList(kv KVs) error {
 	conn := p.pool.Get()
 	defer conn.Close()
 

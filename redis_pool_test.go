@@ -12,7 +12,7 @@ import (
 const _sock = "127.0.0.1:6379"
 
 func TestKVString(t *testing.T) {
-	pool, errNew := NewRedisPool(_sock)
+	pool, errNew := NewPool(_sock)
 	require.NoError(t, errNew)
 	require.NotNil(t, pool)
 
@@ -72,7 +72,7 @@ func TestKVString(t *testing.T) {
 }
 
 func TestKVAny(t *testing.T) {
-	pool, errNew := NewRedisPool(_sock)
+	pool, errNew := NewPool(_sock)
 	require.NoError(t, errNew)
 	require.NotNil(t, pool)
 
@@ -100,7 +100,7 @@ func TestKVAny(t *testing.T) {
 }
 
 func TestKVs(t *testing.T) {
-	pool, errNew := NewRedisPool(_sock)
+	pool, errNew := NewPool(_sock)
 	require.NoError(t, errNew)
 	require.NotNil(t, pool)
 

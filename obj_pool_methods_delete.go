@@ -1,6 +1,6 @@
 package redis
 
-func (p *RedisPool) Delete(keys ...string) error {
+func (p *Pool) Delete(keys ...string) error {
 	conn := p.pool.Get()
 	defer conn.Close()
 
@@ -23,7 +23,7 @@ func (p *RedisPool) Delete(keys ...string) error {
 	return errDel
 }
 
-func (p *RedisPool) deleteByDB() error {
+func (p *Pool) deleteByDB() error {
 	conn := p.pool.Get()
 	defer conn.Close()
 
@@ -31,7 +31,7 @@ func (p *RedisPool) deleteByDB() error {
 	return errDel
 }
 
-func (p *RedisPool) deleteALL() error {
+func (p *Pool) deleteALL() error {
 	conn := p.pool.Get()
 	defer conn.Close()
 

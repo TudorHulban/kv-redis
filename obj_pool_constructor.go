@@ -16,27 +16,47 @@ type KVs struct {
 	values []string
 }
 
-type RedisPool struct {
-	pool redis.Pool
+type Pool struct {
+	pool                redis.Pool
+	maxNumberNamespaces uint
+	databaseNumber      uint
 }
+
+type PoolOption func(p *Pool)
 
 var errNoKeysToDelete = errors.New("no keys to delete")
 
-func NewRedisPool(sock string) (*RedisPool, error) {
+func WithDatabaseNumber(n uint) PoolOption {
+	return func(p *Pool) {
+		if n > p.maxNumberNamespaces {
+			p.databaseNumber = p.maxNumberNamespaces
+		} else {
+			p.databaseNumber = n
+		}
+	}
+}
+
+func NewPool(sock string, config ...PoolOption) (*Pool, error) {
+	res := Pool{
+		maxNumberNamespaces: 16,
+	}
+
+	for _, option := range config {
+		option(&res)
+	}
+
 	var errConn error
 
-	res := RedisPool{
-		pool: redis.Pool{
-			MaxIdle:   80,
-			MaxActive: 12000,
-			Dial: func() (redis.Conn, error) {
-				c, err := redis.Dial("tcp", sock)
-				if err != nil {
-					errConn = err
-				}
+	res.pool = redis.Pool{
+		MaxIdle:   80,
+		MaxActive: 12000,
+		Dial: func() (redis.Conn, error) {
+			c, err := redis.Dial("tcp", sock)
+			if err != nil {
+				errConn = err
+			}
 
-				return c, err
-			},
+			return c, err
 		},
 	}
 
@@ -47,6 +67,6 @@ func NewRedisPool(sock string) (*RedisPool, error) {
 	return &res, nil
 }
 
-func (p *RedisPool) Close() {
+func (p *Pool) Close() {
 	p.pool.Close()
 }
