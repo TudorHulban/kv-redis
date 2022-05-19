@@ -118,6 +118,8 @@ func BenchmarkGetMany(b *testing.B) {
 		pool, _ := NewPool(_sock, WithDatabaseNumber(uint(i)))
 		defer pool.Close()
 
+		pool.Set(kv)
+
 		pools[i] = pool
 	}
 
